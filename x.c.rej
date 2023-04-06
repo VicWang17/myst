@@ -1,0 +1,28 @@
+--- x.c
++++ x.c
+@@ -654,6 +659,13 @@ brelease(XEvent *e)
+ void
+ bmotion(XEvent *e)
+ {
++	if (!xw.pointerisvisible) {
++		XDefineCursor(xw.dpy, xw.win, xw.vpointer);
++		xw.pointerisvisible = 1;
++		if (!IS_SET(MODE_MOUSEMANY))
++			xsetpointermotion(0);
++	}
++
+ 	if (IS_SET(MODE_MOUSE) && !(e->xbutton.state & forceselmod)) {
+ 		mousereport(e);
+ 		return;
+@@ -999,10 +1011,10 @@ void
+ xinit(int cols, int rows)
+ {
+ 	XGCValues gcvalues;
+-	Cursor cursor;
+ 	Window parent;
+ 	pid_t thispid = getpid();
+ 	XColor xmousefg, xmousebg;
++	Pixmap blankpm;
+ 
+ 	if (!(xw.dpy = XOpenDisplay(NULL)))
+ 		die("Can't open display\n");
